@@ -41,6 +41,7 @@ class Display {
         this.#initHomeScreen();
         this.#initHelpScreen();
         this.#initAboutScreen();
+        this.#initControlsScreen();
     }
 
     #initHomeScreen() {
@@ -79,7 +80,8 @@ class Display {
             () => about_button.mouseHover());
         let controls_button = new TextButton(this.width*3/4, this.height/2, 
             "Controls");
-        help_screen.addComponent(controls_button, null, 
+        help_screen.addComponent(controls_button, 
+            () => this.setScreen("controls"), 
             () => controls_button.mouseHover());
         let back_button = new TextButton(100, 50, "<-- Back");
         help_screen.addComponent(back_button, () => this.setScreen("home"), 
@@ -100,6 +102,43 @@ class Display {
         about_screen.addComponent(new Rectangle(this.width/2+200, 
             this.height/2-150, 300, 400));
         this.screens["about"] = about_screen;
+    }
+
+    #initControlsScreen() {
+        let controls_screen = new Screen("Controls");
+        let back_button = new TextButton(100, 50, "<-- Back");
+        controls_screen.addComponent(back_button, () => this.setScreen("help"), 
+            () => back_button.mouseHover());
+        controls_screen.addComponent(
+            new Text(this.width/2, this.height/2-200, "Controls", 140, true)
+        );
+        controls_screen.addComponent(
+            new Text(this.width/3, this.height/2-100, "< or ,")
+        );
+        controls_screen.addComponent(
+            new Text(this.width*2/3, this.height/2-100, 
+                "Hit surdo with left hand.")
+        );
+        controls_screen.addComponent(
+            new Text(this.width/3, this.height/2-50, "> or .")
+        );
+        controls_screen.addComponent(
+            new Text(this.width*2/3, this.height/2-50, 
+                "Hit surdo with right hand.")
+        );
+        controls_screen.addComponent(
+            new Text(this.width/3, this.height/2, "Shift")
+        );
+        controls_screen.addComponent(
+            new Text(this.width*2/3, this.height/2, "Mute surdo with palm.")
+        );
+        controls_screen.addComponent(
+            new Text(this.width/3, this.height/2+50, "Spacebar")
+        );
+        controls_screen.addComponent(
+            new Text(this.width*2/3, this.height/2+50, "Pause game.")
+        );
+        this.screens["controls"] = controls_screen;
     }
 
     show() {
@@ -275,7 +314,7 @@ class PlayButton extends Component {
 
 
 class Text extends Component {
-    constructor(x, y, msg, size, bold=false, align=CENTER) {
+    constructor(x, y, msg, size=30, bold=false, align=CENTER) {
         super(x, y);
         this.msg = msg;
         this.size = size;
