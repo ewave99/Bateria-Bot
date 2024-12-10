@@ -1,7 +1,12 @@
 let display;
 let NotoSansRegular;
+//let BateriaImg;
+let AboutText = `Bateria Bot is an online game for those who want to practise
+samba rhythms in their own time. The game focuses on a 
+simplified version of the piece 'Batucada'.`;
 
 function preload() {
+    //BateriaImg = loadImage("/assets/bateria.png");
     NotoSansRegular = loadFont("/assets/NotoSans-Regular.ttf");
 }
 
@@ -17,19 +22,29 @@ function draw() {
     display.show();
 }
 
+function mouseClicked() {
+    display.updateMouseClick(mouseX, mouseY);
+}
+
 
 class Display {
     constructor(width, height) {
         this.width = width;
         this.height = height;
-        this.screens = new Array();
-        this.current_screen = 0;
+        this.screens = new Object();
+        this.current_screen = "home";
 
         this.#initScreens();
     }
 
     #initScreens() {
-        let home_screen = new Screen("Home");
+        this.#initHomeScreen();
+        this.#initHelpScreen();
+        this.#initAboutScreen();
+    }
+
+    #initHomeScreen() {
+        let home_screen = new Screen("Bateria Bot");
         home_screen.addComponent(
             new Text(this.width/2, this.height/2-200, "Bateria Bot", 140, 
                 true));
@@ -42,20 +57,67 @@ class Display {
         home_screen.addComponent(credits_button, null,
             () => credits_button.mouseHover());
         let help_button = new TextButton(this.width-250, 50, "Help");
-        home_screen.addComponent(help_button, null,
+        home_screen.addComponent(help_button, () => this.setScreen("help"),
             () => help_button.mouseHover());
         let settings_button = new TextButton(this.width-100, 50, "Settings");
         home_screen.addComponent(settings_button, null,
             () => settings_button.mouseHover());
-        this.screens.push(home_screen);
+        this.screens["home"] = home_screen;
+    }
+
+    #initHelpScreen() {
+        let help_screen = new Screen("Help");
+        help_screen.addComponent(
+            new Text(this.width/2, this.height/2-200, "Help", 140, true)
+        );
+        let tour_button = new TextButton(this.width/2, this.height/2, "Tour", 
+            140);
+        help_screen.addComponent(tour_button, null, 
+            () => tour_button.mouseHover());
+        let about_button = new TextButton(this.width/4, this.height/2, "About");
+        help_screen.addComponent(about_button, () => this.setScreen("about"), 
+            () => about_button.mouseHover());
+        let controls_button = new TextButton(this.width*3/4, this.height/2, 
+            "Controls");
+        help_screen.addComponent(controls_button, null, 
+            () => controls_button.mouseHover());
+        let back_button = new TextButton(100, 50, "<-- Back");
+        help_screen.addComponent(back_button, () => this.setScreen("home"), 
+            () => back_button.mouseHover());
+        this.screens["help"] = help_screen;
+    }
+
+    #initAboutScreen() {
+        let about_screen = new Screen("About");
+        let back_button = new TextButton(100, 50, "<-- Back");
+        about_screen.addComponent(back_button, () => this.setScreen("help"), 
+            () => back_button.mouseHover());
+        about_screen.addComponent(
+            new Text(this.width/2, this.height/2-200, "About", 140, true)
+        );
+        about_screen.addComponent(new Text(200, this.height/2-100, 
+            AboutText, 30, true, LEFT));
+        about_screen.addComponent(new Rectangle(this.width/2+200, 
+            this.height/2-150, 300, 400));
+        this.screens["about"] = about_screen;
     }
 
     show() {
         this.screens[this.current_screen].show();
+        document.title = this.screens[this.current_screen].name;
     }
 
     updateMouseHover(mouse_x, mouse_y) {
         this.screens[this.current_screen].updateMouseHover(mouse_x, mouse_y);
+    }
+
+    updateMouseClick(mouse_x, mouse_y) {
+        this.screens[this.current_screen].updateMouseClick(mouse_x, mouse_y);
+    }
+
+    setScreen(screen_name) {
+        if (Object.keys(this.screens).includes(screen_name))
+            this.current_screen = screen_name;
     }
 }
 
@@ -97,6 +159,11 @@ class Screen {
         for (let mouse_hover of this.mouse_hovers)
             mouse_hover.update(mouse_x, mouse_y);
     }
+
+    updateMouseClick(mouse_x, mouse_y) {
+        for (let mouse_click of this.mouse_clicks)
+            mouse_click.update(mouse_x, mouse_y);
+    }
 }
 
 
@@ -107,14 +174,34 @@ class Component {
     }
 
     getBoundingBox() {}
+    draw() {}
+}
+
+
+class Rectangle extends Component {
+    constructor(x, y, w, h) {
+        super(x, y);
+        this.w = w;
+        this.h = h;
+    }
+
+    getBoundingBox() {
+        return [this.x, this.y, this.w, this.h];
+    }
+
+    draw() {
+        stroke(0);
+        noFill();
+        rect(this.x, this.y, this.w, this.h);
+    }
 }
 
 
 class TextButton extends Component {
-    constructor(x, y, msg) {
+    constructor(x, y, msg, text_size=30) {
         super(x, y);
         this.msg = msg;
-        this.text_size = 30;
+        this.text_size = text_size;
         this.padding = 10;
         this.background = 255;
         this.#initComponents();
@@ -125,7 +212,7 @@ class TextButton extends Component {
             this.text_size);
         this.rect = [bbox.x-bbox.w/2-this.padding, bbox.y-this.padding, 
             bbox.w+this.padding*2, bbox.h+this.padding*2];
-        this.text = new Text(this.x, this.y, this.msg, 30);
+        this.text = new Text(this.x, this.y, this.msg, this.text_size);
     }
 
     getBoundingBox() {
