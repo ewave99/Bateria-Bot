@@ -1,5 +1,6 @@
 let display;
 let NotoSansRegular;
+let NotoSansSymbols2;
 //let BateriaImg;
 let AboutText = `Bateria Bot is an online game for those who want to practise
 samba rhythms in their own time. The game focuses on a 
@@ -8,6 +9,7 @@ simplified version of the piece 'Batucada'.`;
 function preload() {
     //BateriaImg = loadImage("/assets/bateria.png");
     NotoSansRegular = loadFont("/assets/NotoSans-Regular.ttf");
+    NotoSansSymbols2 = loadFont("/assets/NotoSansSymbols2-Regular.ttf");
 }
 
 function setup() {
@@ -42,6 +44,7 @@ class Display {
         this.#initHelpScreen();
         this.#initAboutScreen();
         this.#initControlsScreen();
+        this.#initGameScreen();
     }
 
     #initHomeScreen() {
@@ -51,7 +54,7 @@ class Display {
                 true));
         let play_button = new PlayButton(this.width/2-100, this.height/2-100, 
             200, 200);
-        home_screen.addComponent(play_button, null,
+        home_screen.addComponent(play_button, () => this.setScreen("game"),
             () => play_button.mouseHover());
         let credits_button = new TextButton(this.width-100, this.height-50,
             "Credits");
@@ -139,6 +142,33 @@ class Display {
             new Text(this.width*2/3, this.height/2+50, "Pause game.")
         );
         this.screens["controls"] = controls_screen;
+    }
+
+    #initGameScreen() {
+        let game_screen = new Screen("Bateria Bot");
+        let pause_button = new TextButton(this.width-300, 50, " ⏸ ", 30, NotoSansSymbols2);
+        game_screen.addComponent(pause_button, () => this.setScreen("pause"),
+            () => pause_button.mouseHover());
+        let help_button = new TextButton(this.width-225, 50, "?");
+        game_screen.addComponent(help_button, () => this.setScreen("help"),
+            () => help_button.mouseHover());
+        let settings_button = new TextButton(this.width-100, 50, "Settings");
+        game_screen.addComponent(settings_button, () => this.setScreen("settings"),
+            () => settings_button.mouseHover());
+        
+        let paper_tape = new PaperTape(50, 100, this.width-100, 100);
+        game_screen.addComponent(paper_tape);
+
+        let hand_signal_box = new SignalBox(50, 300, 200, "Hand signal:");
+        game_screen.addComponent(hand_signal_box);
+
+        let whistle_box = new SignalBox(50, 600, 150, "Whistle:");
+        game_screen.addComponent(whistle_box);
+
+        let instrument_box = new Instrument(this.width/2, 300, 300, 300);
+        game_screen.addComponent(instrument_box);
+
+        this.screens["game"] = game_screen;
     }
 
     show() {
@@ -237,21 +267,22 @@ class Rectangle extends Component {
 
 
 class TextButton extends Component {
-    constructor(x, y, msg, text_size=30) {
+    constructor(x, y, msg, text_size=30, font=NotoSansRegular) {
         super(x, y);
         this.msg = msg;
         this.text_size = text_size;
         this.padding = 10;
         this.background = 255;
+        this.font = font;
         this.#initComponents();
     }
 
     #initComponents() {
-        let bbox = NotoSansRegular.textBounds(this.msg, this.x, this.y,
+        let bbox = this.font.textBounds(this.msg, this.x, this.y,
             this.text_size);
         this.rect = [bbox.x-bbox.w/2-this.padding, bbox.y-this.padding, 
             bbox.w+this.padding*2, bbox.h+this.padding*2];
-        this.text = new Text(this.x, this.y, this.msg, this.text_size);
+        this.text = new Text(this.x, this.y, this.msg, this.text_size, false, CENTER, this.font);
     }
 
     getBoundingBox() {
@@ -264,6 +295,7 @@ class TextButton extends Component {
     }
 
     draw() {
+        textFont(this.font);
         stroke(0);
         fill(this.background);
         rect(...this.rect);
@@ -314,21 +346,23 @@ class PlayButton extends Component {
 
 
 class Text extends Component {
-    constructor(x, y, msg, size=30, bold=false, align=CENTER) {
+    constructor(x, y, msg, size=30, bold=false, align=CENTER, font=NotoSansRegular) {
         super(x, y);
         this.msg = msg;
         this.size = size;
         this.bold = bold;
         this.align = align;
+        this.font = font;
     }
 
     getBoundingBox() {
-        let bbox = NotoSansRegular.textBounds(this.msg, this.x, this.y,
+        let bbox = this.font.textBounds(this.msg, this.x, this.y,
             this.text_size);
         return [bbox.x, bbox.y, bbox.w, bbox.h];
     }
 
     draw() {
+        textFont(this.font);
         fill(0);
         textAlign(this.align);
         if (this.bold) 
@@ -367,6 +401,49 @@ class Checkbox extends Component {
     }
 
     toggle() {}
+}
+
+
+class PaperTape extends Rectangle {
+    constructor(x, y, w, h) {
+        super(x, y, w, h);
+        this.num_segments = 8;
+        this.segment_size = this.w / this.num_segments;
+    }
+
+    draw() {
+        noFill();
+        stroke(0);
+        let rx = this.x;
+        for (let i = 0; i < this.num_segments; i++) {
+            rect(rx, this.y, this.segment_size, this.h);
+            rx += this.segment_size;
+        }
+    }
+}
+
+
+class SignalBox extends Component {
+    constructor(x, y, d, title) {
+        super(x, y);
+        this.d = d;
+        this.text = new Text(x, y, title, 30, false, LEFT);
+        this.square = [this.x, this.y+30, this.d];
+    }
+
+    draw() {
+        this.text.draw();
+        noFill();
+        stroke(0);
+        square(...this.square);
+    }
+}
+
+
+class Instrument extends Rectangle {
+    constructor(x, y, w, h) {
+        super(x, y, w, h);
+    }
 }
 
 
