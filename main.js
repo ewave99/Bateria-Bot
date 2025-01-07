@@ -28,6 +28,10 @@ function mouseClicked() {
     display.updateMouseClick(mouseX, mouseY);
 }
 
+function keyPressed() {
+    display.updateKeyPress(keyCode);
+}
+
 
 class Display {
     constructor(width, height) {
@@ -165,8 +169,16 @@ class Display {
         let whistle_box = new SignalBox(50, 600, 150, "Whistle:");
         game_screen.addComponent(whistle_box);
 
-        let instrument_box = new Instrument(this.width/2, 300, 300, 300);
-        game_screen.addComponent(instrument_box);
+        let player_visual = new PlayerVisual(this.width/2, 300, 300, 300);
+        let event_text = new Text(this.width/2+150, 400, "M", 140);
+
+        game_screen.addKeyPress(new KeyboardListener(188, () => event_text.updateMsg("L"))); // < or ,
+        game_screen.addKeyPress(new KeyboardListener(190, () => event_text.updateMsg("R"))); // > or .
+        game_screen.addKeyPress(new KeyboardListener(SHIFT, () => event_text.updateMsg("M")));
+        game_screen.addKeyPress(new KeyboardListener(32, () => event_text.updateMsg("Pause"))); // space
+
+        game_screen.addComponent(event_text);
+        game_screen.addComponent(player_visual);
 
         this.screens["game"] = game_screen;
     }
@@ -184,6 +196,10 @@ class Display {
         this.screens[this.current_screen].updateMouseClick(mouse_x, mouse_y);
     }
 
+    updateKeyPress(key_code) {
+        this.screens[this.current_screen].updateKeyPress(key_code);
+    }
+
     setScreen(screen_name) {
         if (Object.keys(this.screens).includes(screen_name))
             this.current_screen = screen_name;
@@ -197,6 +213,7 @@ class Screen {
         this.components = components;
         this.mouse_clicks = new Array();
         this.mouse_hovers = new Array();
+        this.key_presses = new Array();
     }
 
     show() {
@@ -224,6 +241,10 @@ class Screen {
         this.mouse_hovers.push(mouse_hover);
     }
 
+    addKeyPress(key_press) {
+        this.key_presses.push(key_press);
+    }
+
     updateMouseHover(mouse_x, mouse_y) {
         for (let mouse_hover of this.mouse_hovers)
             mouse_hover.update(mouse_x, mouse_y);
@@ -232,6 +253,11 @@ class Screen {
     updateMouseClick(mouse_x, mouse_y) {
         for (let mouse_click of this.mouse_clicks)
             mouse_click.update(mouse_x, mouse_y);
+    }
+
+    updateKeyPress(key, key_code) {
+        for (let key_press of this.key_presses)
+            key_press.update(key, key_code);
     }
 }
 
@@ -361,6 +387,10 @@ class Text extends Component {
         return [bbox.x, bbox.y, bbox.w, bbox.h];
     }
 
+    updateMsg(msg) {
+        this.msg = msg;
+    }
+
     draw() {
         textFont(this.font);
         fill(0);
@@ -440,7 +470,7 @@ class SignalBox extends Component {
 }
 
 
-class Instrument extends Rectangle {
+class PlayerVisual extends Rectangle {
     constructor(x, y, w, h) {
         super(x, y, w, h);
     }
@@ -467,5 +497,18 @@ class MouseListener {
         if (y < this.y) return false;
         if (y > this.y + this.h) return false;
         return true;
+    }
+}
+
+
+class KeyboardListener {
+    constructor(key_code, callback) {
+        this.key_code = key_code;
+        this.callback = callback;
+    }
+
+    update(key_code) {
+            if (key_code === this.key_code)
+                this.callback();
     }
 }
