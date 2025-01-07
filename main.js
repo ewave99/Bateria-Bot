@@ -21,12 +21,15 @@ function setup() {
 function draw() {
     cursor(ARROW);
     display.updateMouseHover(mouseX, mouseY);
-    display.updateKeyPress();
     display.show();
 }
 
 function mouseClicked() {
     display.updateMouseClick(mouseX, mouseY);
+}
+
+function keyPressed() {
+    display.updateKeyPress(keyCode);
 }
 
 
@@ -167,13 +170,12 @@ class Display {
         game_screen.addComponent(whistle_box);
 
         let player_visual = new PlayerVisual(this.width/2, 300, 300, 300);
-        let event_text = new Text(this.width/2+150, 400, "()", 140);
+        let event_text = new Text(this.width/2+150, 400, "M", 140);
 
         game_screen.addKeyPress(new KeyboardListener(188, () => event_text.updateMsg("L"))); // < or ,
         game_screen.addKeyPress(new KeyboardListener(190, () => event_text.updateMsg("R"))); // > or .
         game_screen.addKeyPress(new KeyboardListener(SHIFT, () => event_text.updateMsg("M")));
         game_screen.addKeyPress(new KeyboardListener(32, () => event_text.updateMsg("Pause"))); // space
-        game_screen.addDefaultFun(() => event_text.updateMsg("()"));
 
         game_screen.addComponent(event_text);
         game_screen.addComponent(player_visual);
@@ -195,7 +197,7 @@ class Display {
     }
 
     updateKeyPress(key_code) {
-        this.screens[this.current_screen].updateKeyPress();
+        this.screens[this.current_screen].updateKeyPress(key_code);
     }
 
     setScreen(screen_name) {
@@ -212,7 +214,6 @@ class Screen {
         this.mouse_clicks = new Array();
         this.mouse_hovers = new Array();
         this.key_presses = new Array();
-        this.default_funs = new Array(); //array of functions
     }
 
     show() {
@@ -220,8 +221,6 @@ class Screen {
         for (let component of this.components) {
             component.draw();
         }
-        for (let default_fun of this.default_funs)
-            default_fun();
     }
 
     addComponent(component, mouse_click=null, mouse_hover=null) {
@@ -246,10 +245,6 @@ class Screen {
         this.key_presses.push(key_press);
     }
 
-    addDefaultFun(fun) {
-        this.default_funs.push(fun);
-    }
-
     updateMouseHover(mouse_x, mouse_y) {
         for (let mouse_hover of this.mouse_hovers)
             mouse_hover.update(mouse_x, mouse_y);
@@ -260,9 +255,9 @@ class Screen {
             mouse_click.update(mouse_x, mouse_y);
     }
 
-    updateKeyPress() {
+    updateKeyPress(key, key_code) {
         for (let key_press of this.key_presses)
-            key_press.update();
+            key_press.update(key, key_code);
     }
 }
 
@@ -512,8 +507,8 @@ class KeyboardListener {
         this.callback = callback;
     }
 
-    update() {
-            if (keyIsDown(this.key_code))
+    update(key_code) {
+            if (key_code === this.key_code)
                 this.callback();
     }
 }
