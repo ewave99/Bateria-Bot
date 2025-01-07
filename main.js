@@ -32,7 +32,6 @@ function keyPressed() {
     display.updateKeyPress(keyCode);
 }
 
-
 class Display {
     constructor(width, height) {
         this.width = width;
@@ -49,6 +48,7 @@ class Display {
         this.#initAboutScreen();
         this.#initControlsScreen();
         this.#initGameScreen();
+        this.#initPauseScreen();
     }
 
     #initHomeScreen() {
@@ -175,12 +175,21 @@ class Display {
         game_screen.addKeyPress(new KeyboardListener(188, () => event_text.updateMsg("L"))); // < or ,
         game_screen.addKeyPress(new KeyboardListener(190, () => event_text.updateMsg("R"))); // > or .
         game_screen.addKeyPress(new KeyboardListener(SHIFT, () => event_text.updateMsg("M")));
-        game_screen.addKeyPress(new KeyboardListener(32, () => event_text.updateMsg("Pause"))); // space
+        game_screen.addKeyPress(new KeyboardListener(32, () => this.setScreen("pause"))); // space
 
         game_screen.addComponent(event_text);
         game_screen.addComponent(player_visual);
 
         this.screens["game"] = game_screen;
+    }
+
+    #initPauseScreen() {
+        let pause_screen = new Screen("Pause");
+        pause_screen.addComponent(
+            new Text(this.width/2, this.height/2-200, "Pause", 140, 
+                true));
+        pause_screen.addKeyPress(new KeyboardListener(32, () => this.setScreen("game")));
+        this.screens["pause"] = pause_screen;
     }
 
     show() {
