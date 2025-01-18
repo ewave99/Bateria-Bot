@@ -1,6 +1,7 @@
 let display;
 let NotoSansRegular;
 let NotoSansSymbols2;
+let Batucada120Bpm;
 //let BateriaImg;
 let AboutText = `Bateria Bot is an online game for those who want to practise
 samba rhythms in their own time. The game focuses on a 
@@ -8,8 +9,10 @@ simplified version of the piece 'Batucada'.`;
 
 function preload() {
     //BateriaImg = loadImage("/assets/bateria.png");
+    soundFormats("m4a");
     NotoSansRegular = loadFont("/assets/NotoSans-Regular.ttf");
     NotoSansSymbols2 = loadFont("/assets/NotoSansSymbols2-Regular.ttf");
+    Batucada120Bpm = loadSound("/assets/batucada-120bpm.m4a");
 }
 
 function setup() {
@@ -170,15 +173,18 @@ class Display {
         game_screen.addComponent(whistle_box);
 
         let player_visual = new PlayerVisual(this.width/2, 300, 300, 300);
-        let event_text = new Text(this.width/2+150, 400, "M", 140);
+        let event_text = new Text(this.width/2+150, 400, "", 140);
 
         game_screen.addKeyPress(new KeyboardListener(188, () => event_text.updateMsg("L"))); // < or ,
         game_screen.addKeyPress(new KeyboardListener(190, () => event_text.updateMsg("R"))); // > or .
         game_screen.addKeyPress(new KeyboardListener(SHIFT, () => event_text.updateMsg("M")));
+
         game_screen.addKeyPress(new KeyboardListener(32, () => this.setScreen("pause"))); // space
 
         game_screen.addComponent(event_text);
         game_screen.addComponent(player_visual);
+
+        game_screen.onStart(() => Batucada120Bpm.play());
 
         this.screens["game"] = game_screen;
     }
@@ -210,8 +216,10 @@ class Display {
     }
 
     setScreen(screen_name) {
-        if (Object.keys(this.screens).includes(screen_name))
+        if (Object.keys(this.screens).includes(screen_name)) {
             this.current_screen = screen_name;
+            this.screens[this.current_screen].start();
+        }
     }
 }
 
@@ -223,6 +231,7 @@ class Screen {
         this.mouse_clicks = new Array();
         this.mouse_hovers = new Array();
         this.key_presses = new Array();
+        this.start_fun = null;
     }
 
     show() {
@@ -267,6 +276,15 @@ class Screen {
     updateKeyPress(key, key_code) {
         for (let key_press of this.key_presses)
             key_press.update(key, key_code);
+    }
+
+    onStart(fun) {
+        this.start_fun = fun;
+    }
+
+    start() {
+        if (this.start_fun !== null)
+            this.start_fun();
     }
 }
 
@@ -511,13 +529,17 @@ class MouseListener {
 
 
 class KeyboardListener {
-    constructor(key_code, callback) {
+    constructor(key_code, callback, reset=null) {
         this.key_code = key_code;
         this.callback = callback;
+        this.reset = reset;
     }
 
     update(key_code) {
-            if (key_code === this.key_code)
-                this.callback();
+        if (this.reset !== null)
+            this.reset();
+        if (key_code === this.key_code) {
+            this.callback();
+        }
     }
 }
