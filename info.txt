@@ -1,0 +1,37 @@
+Documentation 
+
+Description 
+
+This project is called ‘Bateria Bot’. In Portuguese, ‘bateria’ means ‘drum kit’. A bateria is the drumming group that provides the music for a samba school. The first samba schools originated in 1928 in Brazil; to this day, samba schools parade as part of Carnaval do Rio De Janeiro. Nowadays, bateria groups have been founded all over the world. Fine City Samba (formerly Norwich Samba, founded in 2000) is one such group in Norwich, UK. I attended the group weekly from April to September 2024, playing an instrument called a ‘surdo’ (pronounced sir-doo). Bateria groups usually provide instruments, as Fine City Samba did. However, it may not be convenient, or indeed permitted, for members to take instruments home to practise on, especially larger instruments like the surdo. This may hinder members’ progress, as the process of learning samba rhythms can be overwhelming and slow to begin with. Bateria Bot is an online game aimed at beginners who want to practise samba rhythms in their own time. Moreover, it aims to be an alternative way of learning for people who don’t necessarily read sheet music, or who learn more easily by ear. The game focuses on a simplified form of the ‘batucada’ rhythm. In a bateria, there is a band leader who conducts the pulse and gives hand signals accompanied by blowing a whistle. They may also lead the introduction section of the piece using a ‘repinique’. Other instruments include the ‘caixa’, ‘tambourim’, ‘chocalho’, ‘agogô’, ‘surdo de primera’, ‘surdo de segunda’ and ‘surdo de terceira’. The user of Bateria Bot may practise ‘surdo de primera’. The game uses Fine City Samba’s version of batucada, break 1, and break 2. A recording of the music is played, using all the samba instruments except that which the user desires to practise. Using optional cues, the user must complete the music by playing their correct rhythm for their instrument in real-time. Settings such as tempo may be adjusted. 
+
+I did not manage to get the game fully complete before the submission date. If I was to continue working on this project in the future, I would make the game fully functional and improve several things. I would make the game more aesthetically appealing and less monochrome. I would enable the user to select from a wider range of instruments to practise the rhythms of. I would introduce a system whereby new bateria music pieces can be loaded into the program easily. I would enable the program to decide a random structure for a piece based on a set of sections, helping the user to practise paying attention to the band leader. 
+
+How to use the program 
+
+    The user clicks ‘Play’ to start the game. 
+
+    The audio plays and the paper tape starts moving. 
+
+    The user presses different keys to hit the drum in different ways: 
+
+    ','/'<': hit surdo with left hand 
+
+    '.'/'>': hit surdo with right hand 
+
+    Shift: mute surdo with palm 
+
+    The user can also press Space to pause the game. 
+
+Video demo 
+
+https://youtu.be/icttoXJsH8E  
+
+References 
+
+Quan, S. (2020). How to parse CSV data? [online] Stack Overflow. Available at: https://stackoverflow.com/questions/1293147/how-to-parse-csv-data [Accessed 18 Jan. 2025]. 
+
+MDN Web Docs. (n.d.). JavaScript modules. [online] Available at: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules. 
+
+‌ 
+
+ 

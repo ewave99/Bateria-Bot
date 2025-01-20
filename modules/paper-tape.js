@@ -107,7 +107,7 @@ class PaperTape {
     }
     
     drawNotes() {
-        this.update(this.context.Batucada120Bpm.currentTime() * 1000)
+        this.update(this.context.millis());
         this.context.textAlign(this.context.CENTER, this.context.CENTER);
         let diameter = 20;
         this.context.textSize(diameter-5);

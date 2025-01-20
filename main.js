@@ -160,7 +160,7 @@ class Display {
         game_screen.addComponent(event_text);
         game_screen.addComponent(player_visual);
 
-        game_screen.onStart(() => this.context.Batucada120Bpm.play());
+        //game_screen.onStart(() => this.context.Batucada120Bpm.play());
 
         this.screens["game"] = game_screen;
     }
@@ -509,7 +509,7 @@ const mainSketch = function(p) {
         p.soundFormats("m4a");
         p.NotoSansRegular = p.loadFont("/assets/NotoSans-Regular.ttf");
         p.NotoSansSymbols2 = p.loadFont("/assets/NotoSansSymbols2-Regular.ttf");
-        p.Batucada120Bpm = p.loadSound("/assets/batucada-120bpm.m4a");
+        //p.Batucada120Bpm = p.loadSound("/assets/batucada-120bpm.m4a");
         p.midi_engine = new MidiEngine(p);
     }
 
