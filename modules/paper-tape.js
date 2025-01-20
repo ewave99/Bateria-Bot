@@ -2,7 +2,8 @@ export { PaperTape };
 
 
 class PaperTape {
-    constructor(x, y, w, h) {
+    constructor(context, x, y, w, h) {
+        this.context = context;
         this.x = x;
         this.y = y;
         this.w = w;
@@ -17,8 +18,9 @@ class PaperTape {
     }
 
     importSequencesObj(sequences_obj) {
+        console.log(sequences_obj);
         for (let name in sequences_obj)
-            paper_tape.addNoteSequence(sequences_obj[name]);
+            this.addNoteSequence(sequences_obj[name]);
     }
 
     addNoteSequence(note_sequence) {
@@ -30,7 +32,7 @@ class PaperTape {
         }
     }
 
-    display() {
+    draw() {
         this.drawOutline();
         this.drawHead();
 
@@ -42,26 +44,26 @@ class PaperTape {
     }
 
     drawOutline() {
-        noFill();
-        stroke(0);
-        strokeWeight(3);
+        this.context.noFill();
+        this.context.stroke(0);
+        this.context.strokeWeight(3);
 
-        rect(this.x, this.y, this.w, this.h);
+        this.context.rect(this.x, this.y, this.w, this.h);
     }
 
     drawHead() {
-        fill(0);
-        noStroke();
+        this.context.fill(0);
+        this.context.noStroke();
         let size = 20;
-        triangle(this.x, this.y+this.h,
+        this.context.triangle(this.x, this.y+this.h,
             this.x-size/2, this.y+this.h+size,
             this.x+size/2, this.y+this.h+size
         );
     }
 
     drawBarLines() {
-        stroke(0);
-        strokeWeight(2);
+        this.context.stroke(0);
+        this.context.strokeWeight(2);
 
         let positions = [0, 1, 2, 3];
 
@@ -69,13 +71,13 @@ class PaperTape {
         let first = Math.ceil(this.current_position);
         for (let position of positions) {
             x = this.getPositionX(first + position);
-            line(x, this.y, x, this.y+this.h);
+            this.context.line(x, this.y, x, this.y+this.h);
         }
     }
 
     drawMinimLines() {
-        stroke(0);
-        strokeWeight(1);
+        this.context.stroke(0);
+        this.context.strokeWeight(1);
 
         let positions = [0.5, 1.5, 2.5, 3.5];
     
@@ -83,14 +85,14 @@ class PaperTape {
         let first = Math.ceil(this.current_position-0.5);
         for (let position of positions) {
             x = this.getPositionX(first + position);
-            line(x, this.y, x, this.y+this.h);
+            this.context.line(x, this.y, x, this.y+this.h);
         }
     }
 
     drawCrotchetLines() {
-        stroke(0);
-        strokeWeight(0.5);
-        drawingContext.setLineDash([5, 5]);
+        this.context.stroke(0);
+        this.context.strokeWeight(0.5);
+        this.context.drawingContext.setLineDash([5, 5]);
 
         let positions = [0.25, 0.75, 1.25, 1.75, 2.25, 2.75, 3.25, 3.75];
     
@@ -98,16 +100,17 @@ class PaperTape {
         let first = Math.ceil((this.current_position-0.25)*2)/2;
         for (let position of positions) {
             x = this.getPositionX(first + position);
-            line(x, this.y, x, this.y+this.h);
+            this.context.line(x, this.y, x, this.y+this.h);
         }
 
-        drawingContext.setLineDash([]);
+        this.context.drawingContext.setLineDash([]);
     }
     
     drawNotes() {
-        textAlign(CENTER, CENTER);
+        this.update(this.context.Batucada120Bpm.currentTime() * 1000)
+        this.context.textAlign(this.context.CENTER, this.context.CENTER);
         let diameter = 20;
-        textSize(diameter-5);
+        this.context.textSize(diameter-5);
 
         let x;
         let y = this.y + this.h/2;
@@ -121,15 +124,17 @@ class PaperTape {
 
             note_text = this.getNoteText(this.note_values[i]);
 
-            fill(255);
-            stroke(0);
-            strokeWeight(1);
-            circle(x, y, diameter);
+            this.context.fill(255);
+            this.context.stroke(0);
+            this.context.strokeWeight(1);
+            this.context.circle(x, y, diameter);
 
-            fill(0);
-            noStroke();
-            text(note_text, x, y);
+            this.context.fill(0);
+            this.context.noStroke();
+            this.context.text(note_text, x, y);
         }
+
+        this.context.textAlign(this.context.CENTER, this.context.BASELINE);
     }
 
     getPositionX(position) {

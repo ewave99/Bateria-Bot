@@ -11,20 +11,22 @@ class MidiEngine {
         "batucada_ending": "../assets/csv/batucada-ending.csv"
     };
 
-    constructor() {
+    constructor(context) {
+        this.context = context;
         this.loadCsvFiles();
     }
 
     loadCsvFiles() {
         this.csv_data = new Object();
         for (let name in this.csv_filenames)
-            this.csv_data[name] = loadStrings(this.csv_filenames[name]);
+            this.csv_data[name] = this.context.loadStrings(this.csv_filenames[name]);
     }
 
     processCsvFiles() {
         this.sequences = new Object();
-        for (let name in this.csv_data)
+        for (let name in this.csv_data) {
             this.sequences[name] = this.getNoteSequence(this.csv_data[name]);
+        }
     }
 
     getNoteSequence(csv_array) {
@@ -35,8 +37,8 @@ class MidiEngine {
     csvArrayToData(csv_array) {
         let array_data = new Array();
         let line_data;
-        for (let line of csv_array) {
-            line_data = this.csvLineToData(line);
+        for (let i = 0; i < csv_array.length; i++) {
+            line_data = this.csvLineToData(csv_array[i]);
             array_data.push(line_data);
         }
         return array_data;
@@ -44,7 +46,7 @@ class MidiEngine {
     
     csvLineToData(line) {
         let fields = line.match(/\s*(\"[^"]*\"|'[^']*'|[^,]*)\s*(,|$)/g);
-        return fields.map(parseValueFromField);
+        return fields.map(this.parseValueFromField);
     }
     
     parseValueFromField(field) {
@@ -81,7 +83,7 @@ class MidiEngine {
         sequence.note_positions = new Array();
     
         for (let record of data) {
-            if (getEvent(record) === "Note_on_c") {
+            if (this.getEvent(record) === "Note_on_c") {
                 sequence.note_positions.push(this.getTime(record));
                 sequence.note_values.push(this.getNote(record));
             }

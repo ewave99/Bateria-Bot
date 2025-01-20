@@ -1,42 +1,16 @@
+import { MidiEngine } from "./modules/midi-engine.js";
+import { PaperTape } from "./modules/paper-tape.js";
+
 let display;
-let NotoSansRegular;
-let NotoSansSymbols2;
-let Batucada120Bpm;
 //let BateriaImg;
 let AboutText = `Bateria Bot is an online game for those who want to practise
 samba rhythms in their own time. The game focuses on a 
 simplified version of the piece 'Batucada'.`;
 
-function preload() {
-    //BateriaImg = loadImage("/assets/bateria.png");
-    soundFormats("m4a");
-    NotoSansRegular = loadFont("/assets/NotoSans-Regular.ttf");
-    NotoSansSymbols2 = loadFont("/assets/NotoSansSymbols2-Regular.ttf");
-    Batucada120Bpm = loadSound("/assets/batucada-120bpm.m4a");
-}
-
-function setup() {
-    createCanvas(windowWidth, windowHeight);
-    display = new Display(width, height);
-    textFont(NotoSansRegular);
-}
-
-function draw() {
-    cursor(ARROW);
-    display.updateMouseHover(mouseX, mouseY);
-    display.show();
-}
-
-function mouseClicked() {
-    display.updateMouseClick(mouseX, mouseY);
-}
-
-function keyPressed() {
-    display.updateKeyPress(keyCode);
-}
 
 class Display {
-    constructor(width, height) {
+    constructor(context, width, height) {
+        this.context = context;
         this.width = width;
         this.height = height;
         this.screens = new Object();
@@ -55,144 +29,146 @@ class Display {
     }
 
     #initHomeScreen() {
-        let home_screen = new Screen("Bateria Bot");
+        let home_screen = new Screen(this.context, "Bateria Bot");
         home_screen.addComponent(
-            new Text(this.width/2, this.height/2-200, "Bateria Bot", 140, 
+            new Text(this.context, this.width/2, this.height/2-200, "Bateria Bot", 140, 
                 true));
-        let play_button = new PlayButton(this.width/2-100, this.height/2-100, 
+        let play_button = new PlayButton(this.context, this.width/2-100, this.height/2-100, 
             200, 200);
         home_screen.addComponent(play_button, () => this.setScreen("game"),
             () => play_button.mouseHover());
-        let credits_button = new TextButton(this.width-100, this.height-50,
+        let credits_button = new TextButton(this.context, this.width-100, this.height-50,
             "Credits");
         home_screen.addComponent(credits_button, null,
             () => credits_button.mouseHover());
-        let help_button = new TextButton(this.width-250, 50, "Help");
+        let help_button = new TextButton(this.context, this.width-250, 50, "Help");
         home_screen.addComponent(help_button, () => this.setScreen("help"),
             () => help_button.mouseHover());
-        let settings_button = new TextButton(this.width-100, 50, "Settings");
+        let settings_button = new TextButton(this.context, this.width-100, 50, "Settings");
         home_screen.addComponent(settings_button, null,
             () => settings_button.mouseHover());
         this.screens["home"] = home_screen;
     }
 
     #initHelpScreen() {
-        let help_screen = new Screen("Help");
+        let help_screen = new Screen(this.context, "Help");
         help_screen.addComponent(
-            new Text(this.width/2, this.height/2-200, "Help", 140, true)
+            new Text(this.context, this.width/2, this.height/2-200, "Help", 140, true)
         );
-        let tour_button = new TextButton(this.width/2, this.height/2, "Tour", 
+        let tour_button = new TextButton(this.context, this.width/2, this.height/2, "Tour", 
             140);
         help_screen.addComponent(tour_button, null, 
             () => tour_button.mouseHover());
-        let about_button = new TextButton(this.width/4, this.height/2, "About");
+        let about_button = new TextButton(this.context, this.width/4, this.height/2, "About");
         help_screen.addComponent(about_button, () => this.setScreen("about"), 
             () => about_button.mouseHover());
-        let controls_button = new TextButton(this.width*3/4, this.height/2, 
+        let controls_button = new TextButton(this.context, this.width*3/4, this.height/2, 
             "Controls");
         help_screen.addComponent(controls_button, 
             () => this.setScreen("controls"), 
             () => controls_button.mouseHover());
-        let back_button = new TextButton(100, 50, "<-- Back");
+        let back_button = new TextButton(this.context, 100, 50, "<-- Back");
         help_screen.addComponent(back_button, () => this.setScreen("home"), 
             () => back_button.mouseHover());
         this.screens["help"] = help_screen;
     }
 
     #initAboutScreen() {
-        let about_screen = new Screen("About");
-        let back_button = new TextButton(100, 50, "<-- Back");
+        let about_screen = new Screen(this.context, "About");
+        let back_button = new TextButton(this.context, 100, 50, "<-- Back");
         about_screen.addComponent(back_button, () => this.setScreen("help"), 
             () => back_button.mouseHover());
         about_screen.addComponent(
-            new Text(this.width/2, this.height/2-200, "About", 140, true)
+            new Text(this.context, this.width/2, this.height/2-200, "About", 140, true)
         );
-        about_screen.addComponent(new Text(200, this.height/2-100, 
-            AboutText, 30, true, LEFT));
-        about_screen.addComponent(new Rectangle(this.width/2+200, 
+        about_screen.addComponent(new Text(this.context, 200, this.height/2-100, 
+            AboutText, 30, true, this.context.LEFT));
+        about_screen.addComponent(new Rectangle(this.context, this.width/2+200, 
             this.height/2-150, 300, 400));
         this.screens["about"] = about_screen;
     }
 
     #initControlsScreen() {
-        let controls_screen = new Screen("Controls");
-        let back_button = new TextButton(100, 50, "<-- Back");
+        let controls_screen = new Screen(this.context, "Controls");
+        let back_button = new TextButton(this.context, 100, 50, "<-- Back");
         controls_screen.addComponent(back_button, () => this.setScreen("help"), 
             () => back_button.mouseHover());
         controls_screen.addComponent(
-            new Text(this.width/2, this.height/2-200, "Controls", 140, true)
+            new Text(this.context, this.width/2, this.height/2-200, "Controls", 140, true)
         );
         controls_screen.addComponent(
-            new Text(this.width/3, this.height/2-100, "< or ,")
+            new Text(this.context, this.width/3, this.height/2-100, "< or ,")
         );
         controls_screen.addComponent(
-            new Text(this.width*2/3, this.height/2-100, 
+            new Text(this.context, this.width*2/3, this.height/2-100, 
                 "Hit surdo with left hand.")
         );
         controls_screen.addComponent(
-            new Text(this.width/3, this.height/2-50, "> or .")
+            new Text(this.context, this.width/3, this.height/2-50, "> or .")
         );
         controls_screen.addComponent(
-            new Text(this.width*2/3, this.height/2-50, 
+            new Text(this.context, this.width*2/3, this.height/2-50, 
                 "Hit surdo with right hand.")
         );
         controls_screen.addComponent(
-            new Text(this.width/3, this.height/2, "Shift")
+            new Text(this.context, this.width/3, this.height/2, "Shift")
         );
         controls_screen.addComponent(
-            new Text(this.width*2/3, this.height/2, "Mute surdo with palm.")
+            new Text(this.context, this.width*2/3, this.height/2, "Mute surdo with palm.")
         );
         controls_screen.addComponent(
-            new Text(this.width/3, this.height/2+50, "Spacebar")
+            new Text(this.context, this.width/3, this.height/2+50, "Spacebar")
         );
         controls_screen.addComponent(
-            new Text(this.width*2/3, this.height/2+50, "Pause game.")
+            new Text(this.context, this.width*2/3, this.height/2+50, "Pause game.")
         );
         this.screens["controls"] = controls_screen;
     }
 
     #initGameScreen() {
-        let game_screen = new Screen("Bateria Bot");
-        let pause_button = new TextButton(this.width-300, 50, " ⏸ ", 30, NotoSansSymbols2);
+        let game_screen = new Screen(this.context, "Bateria Bot");
+        let pause_button = new TextButton(this.context, this.width-300, 50, 
+            " ⏸ ", 30, this.context.NotoSansSymbols2);
         game_screen.addComponent(pause_button, () => this.setScreen("pause"),
             () => pause_button.mouseHover());
-        let help_button = new TextButton(this.width-225, 50, "?");
+        let help_button = new TextButton(this.context, this.width-225, 50, "?");
         game_screen.addComponent(help_button, () => this.setScreen("help"),
             () => help_button.mouseHover());
-        let settings_button = new TextButton(this.width-100, 50, "Settings");
+        let settings_button = new TextButton(this.context, this.width-100, 50, "Settings");
         game_screen.addComponent(settings_button, () => this.setScreen("settings"),
             () => settings_button.mouseHover());
         
-        let paper_tape = new PaperTape(50, 100, this.width-100, 100);
+        let paper_tape = new PaperTape(this.context, 50, 100, this.width-100, 100);
+        paper_tape.importSequencesObj(this.context.midi_engine.sequences);
         game_screen.addComponent(paper_tape);
 
-        let hand_signal_box = new SignalBox(50, 300, 200, "Hand signal:");
+        let hand_signal_box = new SignalBox(this.context, 50, 300, 200, "Hand signal:");
         game_screen.addComponent(hand_signal_box);
 
-        let whistle_box = new SignalBox(50, 600, 150, "Whistle:");
+        let whistle_box = new SignalBox(this.context, 50, 600, 150, "Whistle:");
         game_screen.addComponent(whistle_box);
 
-        let player_visual = new PlayerVisual(this.width/2, 300, 300, 300);
-        let event_text = new Text(this.width/2+150, 400, "", 140);
+        let player_visual = new PlayerVisual(this.context, this.width/2, 300, 300, 300);
+        let event_text = new Text(this.context, this.width/2+150, 400, "", 140);
 
         game_screen.addKeyPress(new KeyboardListener(188, () => event_text.updateMsg("L"))); // < or ,
         game_screen.addKeyPress(new KeyboardListener(190, () => event_text.updateMsg("R"))); // > or .
-        game_screen.addKeyPress(new KeyboardListener(SHIFT, () => event_text.updateMsg("M")));
+        game_screen.addKeyPress(new KeyboardListener(this.context.SHIFT, () => event_text.updateMsg("M")));
 
         game_screen.addKeyPress(new KeyboardListener(32, () => this.setScreen("pause"))); // space
 
         game_screen.addComponent(event_text);
         game_screen.addComponent(player_visual);
 
-        game_screen.onStart(() => Batucada120Bpm.play());
+        game_screen.onStart(() => this.context.Batucada120Bpm.play());
 
         this.screens["game"] = game_screen;
     }
 
     #initPauseScreen() {
-        let pause_screen = new Screen("Pause");
+        let pause_screen = new Screen(this.context, "Pause");
         pause_screen.addComponent(
-            new Text(this.width/2, this.height/2-200, "Pause", 140, 
+            new Text(this.context, this.width/2, this.height/2-200, "Pause", 140, 
                 true));
         pause_screen.addKeyPress(new KeyboardListener(32, () => this.setScreen("game")));
         this.screens["pause"] = pause_screen;
@@ -225,7 +201,8 @@ class Display {
 
 
 class Screen {
-    constructor(name, components=new Array()) {
+    constructor(context, name, components=new Array()) {
+        this.context = context;
         this.name = name;
         this.components = components;
         this.mouse_clicks = new Array();
@@ -235,7 +212,7 @@ class Screen {
     }
 
     show() {
-        background(255);
+        this.context.background(255);
         for (let component of this.components) {
             component.draw();
         }
@@ -290,7 +267,8 @@ class Screen {
 
 
 class Component {
-    constructor(x, y) {
+    constructor(context, x, y) {
+        this.context = context;
         this.x = x;
         this.y = y;
     }
@@ -301,8 +279,8 @@ class Component {
 
 
 class Rectangle extends Component {
-    constructor(x, y, w, h) {
-        super(x, y);
+    constructor(context, x, y, w, h) {
+        super(context, x, y);
         this.w = w;
         this.h = h;
     }
@@ -312,21 +290,21 @@ class Rectangle extends Component {
     }
 
     draw() {
-        stroke(0);
-        noFill();
-        rect(this.x, this.y, this.w, this.h);
+        this.context.stroke(0);
+        this.context.noFill();
+        this.context.rect(this.x, this.y, this.w, this.h);
     }
 }
 
 
 class TextButton extends Component {
-    constructor(x, y, msg, text_size=30, font=NotoSansRegular) {
-        super(x, y);
+    constructor(context, x, y, msg, text_size=30, font) {
+        super(context, x, y);
         this.msg = msg;
         this.text_size = text_size;
         this.padding = 10;
         this.background = 255;
-        this.font = font;
+        this.font = font || context.NotoSansRegular;
         this.#initComponents();
     }
 
@@ -335,7 +313,7 @@ class TextButton extends Component {
             this.text_size);
         this.rect = [bbox.x-bbox.w/2-this.padding, bbox.y-this.padding, 
             bbox.w+this.padding*2, bbox.h+this.padding*2];
-        this.text = new Text(this.x, this.y, this.msg, this.text_size, false, CENTER, this.font);
+        this.text = new Text(this.context, this.x, this.y, this.msg, this.text_size, false, this.context.CENTER, this.font);
     }
 
     getBoundingBox() {
@@ -344,14 +322,14 @@ class TextButton extends Component {
 
     mouseHover() {
         this.background = 180;
-        cursor(HAND);
+        this.context.cursor(this.context.HAND);
     }
 
     draw() {
-        textFont(this.font);
-        stroke(0);
-        fill(this.background);
-        rect(...this.rect);
+        this.context.textFont(this.font);
+        this.context.stroke(0);
+        this.context.fill(this.background);
+        this.context.rect(...this.rect);
         this.text.draw();
         //reset background
         this.background = 255;
@@ -360,8 +338,8 @@ class TextButton extends Component {
 
 
 class PlayButton extends Component {
-    constructor(x, y, w, h) {
-        super(x, y);
+    constructor(context, x, y, w, h) {
+        super(context, x, y);
         this.w = w;
         this.h = h;
         this.background = 255;
@@ -374,12 +352,12 @@ class PlayButton extends Component {
             this.x+this.w*1/3, this.y+this.h*3/5, 
             this.x+this.w*2/3, this.y+this.h*2/5
         ];
-        this.text = new Text(this.x+this.w/2, this.y+this.w*4/5, "Play!", 30);
+        this.text = new Text(this.context, this.x+this.w/2, this.y+this.w*4/5, "Play!", 30);
     }
 
     mouseHover() {
         this.background = 180;
-        cursor(HAND);
+        this.context.cursor(this.context.HAND);
     }
 
     getBoundingBox() {
@@ -387,10 +365,10 @@ class PlayButton extends Component {
     }
 
     draw() {
-        stroke(0);
-        fill(this.background);
-        rect(...this.rect);
-        triangle(...this.triangle);
+        this.context.stroke(0);
+        this.context.fill(this.background);
+        this.context.rect(...this.rect);
+        this.context.triangle(...this.triangle);
         this.text.draw();
         //reset background
         this.background = 255;
@@ -399,13 +377,14 @@ class PlayButton extends Component {
 
 
 class Text extends Component {
-    constructor(x, y, msg, size=30, bold=false, align=CENTER, font=NotoSansRegular) {
-        super(x, y);
+    constructor(context, x, y, msg, size=30, bold=false, align, font) {
+        super(context, x, y);
+        this.context = context;
         this.msg = msg;
         this.size = size;
         this.bold = bold;
-        this.align = align;
-        this.font = font;
+        this.align = align || this.context.CENTER;
+        this.font = font || this.context.NotoSansRegular;
     }
 
     getBoundingBox() {
@@ -419,22 +398,22 @@ class Text extends Component {
     }
 
     draw() {
-        textFont(this.font);
-        fill(0);
-        textAlign(this.align);
+        this.context.textFont(this.font);
+        this.context.fill(0);
+        this.context.textAlign(this.align);
         if (this.bold) 
-            textStyle(BOLD);
+            this.context.textStyle(this.context.BOLD);
         else 
-            textStyle(NORMAL);
-        textSize(this.size);
-        text(this.msg, this.x, this.y);
+            this.context.textStyle(this.context.NORMAL);
+        this.context.textSize(this.size);
+        this.context.text(this.msg, this.x, this.y);
     }
 }
 
 
 class Image extends Component {
-    constructor(x, y, w, h, src) {
-        super(x, y);
+    constructor(context, x, y, w, h, src) {
+        super(context, x, y);
         this.w = w;
         this.h = h;
         this.src = src;
@@ -447,8 +426,8 @@ class Image extends Component {
 
 
 class Checkbox extends Component {
-    constructor(x, y, size, checked=false) {
-        super(x, y);
+    constructor(context, x, y, size, checked=false) {
+        super(context, x, y);
         this.size = size;
         this.checked = checked;
     }
@@ -461,45 +440,26 @@ class Checkbox extends Component {
 }
 
 
-class PaperTape extends Rectangle {
-    constructor(x, y, w, h) {
-        super(x, y, w, h);
-        this.num_segments = 8;
-        this.segment_size = this.w / this.num_segments;
-    }
-
-    draw() {
-        noFill();
-        stroke(0);
-        let rx = this.x;
-        for (let i = 0; i < this.num_segments; i++) {
-            rect(rx, this.y, this.segment_size, this.h);
-            rx += this.segment_size;
-        }
-    }
-}
-
-
 class SignalBox extends Component {
-    constructor(x, y, d, title) {
-        super(x, y);
+    constructor(context, x, y, d, title) {
+        super(context, x, y);
         this.d = d;
-        this.text = new Text(x, y, title, 30, false, LEFT);
+        this.text = new Text(this.context, x, y, title, 30, false, this.context.LEFT);
         this.square = [this.x, this.y+30, this.d];
     }
 
     draw() {
         this.text.draw();
-        noFill();
-        stroke(0);
-        square(...this.square);
+        this.context.noFill();
+        this.context.stroke(0);
+        this.context.square(...this.square);
     }
 }
 
 
 class PlayerVisual extends Rectangle {
-    constructor(x, y, w, h) {
-        super(x, y, w, h);
+    constructor(context, x, y, w, h) {
+        super(context, x, y, w, h);
     }
 }
 
@@ -543,3 +503,37 @@ class KeyboardListener {
         }
     }
 }
+
+const mainSketch = function(p) {
+    p.preload = function() {
+        p.soundFormats("m4a");
+        p.NotoSansRegular = p.loadFont("/assets/NotoSans-Regular.ttf");
+        p.NotoSansSymbols2 = p.loadFont("/assets/NotoSansSymbols2-Regular.ttf");
+        p.Batucada120Bpm = p.loadSound("/assets/batucada-120bpm.m4a");
+        p.midi_engine = new MidiEngine(p);
+    }
+
+    p.setup = function() {
+        p.midi_engine.processCsvFiles();
+
+        p.createCanvas(p.windowWidth, p.windowHeight);
+        display = new Display(p, p.width, p.height);
+        p.textFont(p.NotoSansRegular);
+    }
+
+    p.draw = function() {
+        p.cursor(p.ARROW);
+        display.updateMouseHover(p.mouseX, p.mouseY);
+        display.show();
+    }
+
+    p.mouseClicked = function() {
+        display.updateMouseClick(p.mouseX, p.mouseY);
+    }
+
+    p.keyPressed = function() {
+        display.updateKeyPress(p.keyCode);
+    }
+}
+
+new p5(mainSketch);
